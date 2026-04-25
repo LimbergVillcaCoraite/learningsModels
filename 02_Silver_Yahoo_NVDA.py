@@ -1,10 +1,4 @@
 # Databricks notebook source
-﻿# Databricks notebook source
-%md
-# Silver - Cleansed and Quality Audited (Best Practices)
-
-# COMMAND ----------
-
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 

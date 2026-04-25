@@ -1,10 +1,4 @@
 # Databricks notebook source
-﻿# Databricks notebook source
-%md
-# Gold - Serving Layer (Best Practices)
-
-# COMMAND ----------
-
 from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
@@ -26,7 +20,7 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{gold_schema}")
 # COMMAND ----------
 
 silver_df = spark.table(silver_table)
-if silver_df.rdd.isEmpty():
+if silver_df.limit(1).count() == 0:
     raise ValueError(f"Silver vacia: {silver_table}")
 
 w_symbol_date = Window.partitionBy("symbol").orderBy("date")

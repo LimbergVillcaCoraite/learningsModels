@@ -1,10 +1,4 @@
 # Databricks notebook source
-﻿# Databricks notebook source
-%md
-# Bronze - Raw Ingestion (Best Practices)
-
-# COMMAND ----------
-
 # MAGIC %pip install yfinance
 
 # COMMAND ----------
@@ -42,7 +36,12 @@ pdf = yf.download(
 if pdf.empty:
     raise ValueError(f"No se recibieron datos para {symbol} desde Yahoo Finance")
 
+# Aplanar columnas MultiIndex de yfinance y normalizar nombres
 pdf = pdf.reset_index()
+pdf.columns = [c[0] if isinstance(c, tuple) else c for c in pdf.columns]
+pdf.columns = [str(c).strip().lower().replace(" ", "_") for c in pdf.columns]
+
+# Metadatos tecnicos de ingesta
 pdf["source_symbol"] = symbol
 pdf["source_system"] = source_system
 pdf["source_interval"] = source_interval

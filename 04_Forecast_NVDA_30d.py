@@ -1,10 +1,4 @@
 # Databricks notebook source
-﻿# Databricks notebook source
-%md
-# Forecast 30D - Production Guardrails (Best Practices)
-
-# COMMAND ----------
-
 # MAGIC %pip install scikit-learn xgboost pandas_market_calendars
 
 # COMMAND ----------
