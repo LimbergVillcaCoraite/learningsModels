@@ -25,9 +25,25 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{bronze_schema}")
 
 # COMMAND ----------
 
+# ── Incremental: only fetch data since the last ingested date ────────────────
+from datetime import timedelta
+
+try:
+    last_row = spark.table(bronze_table).agg({"date": "max"}).collect()
+    last_date = last_row[0][0] if last_row and last_row[0][0] else None
+except Exception:
+    last_date = None
+
+if last_date is not None:
+    fetch_start = (last_date - timedelta(days=7)).strftime("%Y-%m-%d")
+    print(f"Incremental: fetch desde {fetch_start} (ultimo ingestado: {last_date})")
+else:
+    fetch_start = "1999-01-01"
+    print("Carga inicial: fetch historico completo")
+
 pdf = yf.download(
     symbol,
-    period="max",
+    start=fetch_start,
     interval=source_interval,
     auto_adjust=False,
     progress=False,
@@ -63,3 +79,4 @@ sdf = sdf.withColumn("ingestion_ts", F.current_timestamp()).withColumn("ingestio
 spark.sql(f"OPTIMIZE {bronze_table} ZORDER BY (source_symbol)")
 print(f"Bronze actualizado: {bronze_table}")
 display(spark.table(bronze_table).orderBy(F.col("ingestion_ts").desc()).limit(20))
+
